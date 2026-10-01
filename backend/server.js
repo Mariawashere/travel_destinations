@@ -1,4 +1,5 @@
 const express = require("express");
+const pool = require("./db");
 
 const app = express();
 const PORT = 3000;
@@ -11,21 +12,16 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/destinations", (req, res) => {
-  res.json([
-    {
-      id: 1,
-      title: "Tokyo Trip",
-      country: "Japan",
-      location: "Tokyo"
-    },
-    {
-      id: 2,
-      title: "Rome Holiday",
-      country: "Italy",
-      location: "Rome"
-    }
-  ]);
+app.get("/destinations", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM destinations ORDER BY id");
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Could not fetch destinations"
+    });
+  }
 });
 
 app.listen(PORT, () => {
